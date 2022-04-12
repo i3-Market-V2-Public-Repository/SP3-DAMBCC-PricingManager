@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans>
+    <!-- this bean will be injected into the OrderServiceTest class -->
+    <bean id="orderService" class="com.example.OrderServiceImpl">
+        <!-- set properties, etc. -->
+    </bean> 
+</beans>
