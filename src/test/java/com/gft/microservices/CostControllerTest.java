@@ -68,19 +68,19 @@ public class CostControllerTest {
 			.andExpect(status().isOk())
 			.andExpect(content().string(equalTo("OK")));
 		
-		// Get cost with a fee of 10% so cost = 100 * 10% = 110
+		// Get cost with a fee of 10% so cost = 100 * 10% = 10
 		mvc.perform(MockMvcRequestBuilders.get("/cost/getcost?price=100").accept(MediaType.ALL))
 			.andExpect(status().isOk())
-			.andExpect(content().string(equalTo("110.0")));
+			.andExpect(content().string(equalTo("10.0")));
 		
 		// Set fee as 20
 		mvc.perform(MockMvcRequestBuilders.put("/cost/setfee?fee=20").accept(MediaType.ALL))
 			.andExpect(status().isOk())
 			.andExpect(content().string(equalTo("OK")));
 		
-		// Get cost with a fee of 20% so cost = 100 * 10% = 110
+		// Get cost with a fee of 20% so cost = 100 * 20% = 20
 		mvc.perform(MockMvcRequestBuilders.get("/cost/getcost?price=100").accept(MediaType.ALL))
 			.andExpect(status().isOk())
-			.andExpect(content().string(equalTo("120.0")));
+			.andExpect(content().string(equalTo("20.0")));
 	}
 }

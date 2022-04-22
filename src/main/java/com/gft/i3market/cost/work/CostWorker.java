@@ -50,7 +50,7 @@ public class CostWorker {
 
 			double fee = Double.parseDouble(feeS);
 			double priceD = Double.parseDouble(price);
-			double unroundedCost = priceD + priceD * (fee / 100d);
+			double unroundedCost = priceD * (fee / 100d);
 
 			y = com.gft.i3market.utilities.Utilities.round(unroundedCost, 2);
 

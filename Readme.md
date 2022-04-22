@@ -189,7 +189,7 @@ Query parameter:
 Return parameter:
 - the price
 Example
-input parameter: b1=1&b2=1&b3=1&b4=1&b5=1&b6=1&b7=1&b8=1&b9=1&
+input parameter: credibilityoftheseller=1&ageofdata=1&accuracyofdata=1&volumeofdata=1&costofcollectingandstorage=1&riskofprivacyviolations=1&exclusivityofaccess=1&rawdatavsprocesseddata=1&levelofownership=1
 
 ### Cost manager:
 

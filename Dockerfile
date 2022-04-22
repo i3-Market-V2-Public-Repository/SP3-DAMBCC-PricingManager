@@ -9,6 +9,7 @@ RUN mkdir -p build/libs/dependency && (cd build/libs/dependency; find ../ -name 
 
 FROM openjdk:11.0.11-jdk-slim
 VOLUME /tmp
+COPY --from=build /workspace/app/config /config
 ARG DEPENDENCY=/workspace/app/build/libs/dependency
 COPY --from=build ${DEPENDENCY}/BOOT-INF/lib /app/lib
 COPY --from=build ${DEPENDENCY}/META-INF /app/META-INF
