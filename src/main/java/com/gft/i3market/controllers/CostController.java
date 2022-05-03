@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.gft.i3market.cost.work.CostWorker;
+import com.gft.i3market.parameters.FormulaParameterConfiguration;
+
 import io.swagger.annotations.ApiOperation;
 
 /**
@@ -36,7 +38,9 @@ public class CostController {
 	 */
 	@ApiOperation(value = "Get the cost of item", response = Iterable.class)
 	@RequestMapping(value = "/getcost", method = RequestMethod.GET)
-	public ResponseEntity<String> get(@RequestParam String price) {
+	public ResponseEntity<String> get(
+			@RequestParam(value= "price" ,required=true) String price) 
+			{
 
 		logger.info("getcost/get");
 

@@ -1,6 +1,7 @@
 package com.gft.microservices;
 
 import static org.hamcrest.Matchers.equalTo;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -27,7 +28,10 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gft.i3market.I3MarketApplication;
+import com.gft.i3market.parameters.FormulaConstantConfiguration;
+import com.gft.i3market.parameters.FormulaWithConfiguration;
 
 @AutoConfigureMockMvc
 @SpringBootTest(classes = I3MarketApplication.class)
@@ -51,14 +55,31 @@ public class PriceControllerSetFormulaConstant {
 		// formula=f(p1,c1)=p1+c1
 		// p1 required true default value as default (1)
 		// c1 value = 1
-		mvc.perform(MockMvcRequestBuilders.put("/price/setformulawithdefaultconfiguration?formula=f(p1,c1)=p1+c1&contantslist=c1&parameterslist=p1").accept(MediaType.ALL))
-			.andExpect(status().isOk());
+		ObjectMapper objectMapper = new ObjectMapper();
+		
+		FormulaWithConfiguration formulaWithConfiguration = new FormulaWithConfiguration();
+		formulaWithConfiguration.setFormula("f(p1,c1)=p1+c1");
+		formulaWithConfiguration.setContantslist("c1");
+		formulaWithConfiguration.setParameterslist("p1");
+		
+		String jsonconfig = objectMapper.writeValueAsString(formulaWithConfiguration);
+
+		mvc.perform(put("/price/setformulawithdefaultconfiguration").contentType(MediaType.APPLICATION_JSON).content(jsonconfig))
+		.andExpect(status().isOk());
 		
 		// TEST 10
 		// Change the value of constant
 		// c1 = 3
-		mvc.perform(MockMvcRequestBuilders.put("/price/setformulaconstant?name=c1&description=test&value=3").accept(MediaType.ALL))
-			.andExpect(status().isOk());
+		FormulaConstantConfiguration formulaParameter = new FormulaConstantConfiguration();
+		formulaParameter.setName("c1");
+		formulaParameter.setDescription("c1test");
+		formulaParameter.setValue("3");
+		
+		jsonconfig = objectMapper.writeValueAsString(formulaParameter);
+
+		mvc.perform(put("/price/setformulaconstant").contentType(MediaType.APPLICATION_JSON).content(jsonconfig))
+		.andExpect(status().isOk());
+		
 		
 		// TEST 11
 		// Perform evaluation test

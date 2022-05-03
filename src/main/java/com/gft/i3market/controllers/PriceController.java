@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -21,6 +22,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gft.i3market.parameters.FormulaConfig;
 import com.gft.i3market.parameters.FormulaConstantConfiguration;
 import com.gft.i3market.parameters.FormulaParameterConfiguration;
+import com.gft.i3market.parameters.FormulaWithConfiguration;
 import com.gft.i3market.price.work.PriceWorker;
 import com.gft.test.jackson.Car;
 
@@ -51,7 +53,9 @@ public class PriceController {
 	 */
 	@ApiOperation(value = "Get the price of item", response = Iterable.class)
 	@RequestMapping(value = "/getprice", method = RequestMethod.GET)
-	public ResponseEntity<String> getPrice(@RequestParam Map<String, String> parameters) {
+	public ResponseEntity<String> getPrice(
+			@RequestParam Map<String, String> parameters)
+			{
 		// http://localhost:8080/price/getprice?credibilityoftheseller=1&ageofdata=1&accuracyofdata=1&volumeofdata=1&costofcollectingandstorage=1&riskofprivacyviolations=1&exclusivityofaccess=1&rawdatavsprocesseddata=1&levelofownership=1
 		logger.info("getprice/get");
 
@@ -88,7 +92,9 @@ public class PriceController {
 	 */
 	@ApiOperation(value = "Set formula parameter", response = Iterable.class)
 	@RequestMapping(value = "/setformulaparameter", method = RequestMethod.PUT)
-	public ResponseEntity<String> configureFormulaParameters(FormulaParameterConfiguration formulaParameter) {
+	public ResponseEntity<String> configureFormulaParameters(
+			@RequestBody(required=true) FormulaParameterConfiguration formulaParameter) 
+			{
 		// http://localhost:8080/price/putParam?name=b1&description=Credibility%20of%20seller&required=false&defaultvalue=2
 		logger.info("configureformulaparameters/put");
 
@@ -118,7 +124,9 @@ public class PriceController {
 	 */
 	@ApiOperation(value = "Set formula constant", response = Iterable.class)
 	@RequestMapping(value = "/setformulaconstant", method = RequestMethod.PUT)
-	public ResponseEntity<String> configureFormulaParameters(FormulaConstantConfiguration formulaParameter) {
+	public ResponseEntity<String> configureFormulaParameters(
+			@RequestBody(required=true) FormulaConstantConfiguration formulaParameter)
+			{
 		// http://localhost:8080/price/putParam?name=b1&description=Credibility%20of%20seller&required=false&defaultvalue=2
 		logger.info("configureformulaconstant/put");
 
@@ -142,8 +150,13 @@ public class PriceController {
 	
 	@ApiOperation(value = "Set Formula with default values for constants and parameters", response = Iterable.class)
 	@RequestMapping(value = "/setformulawithdefaultconfiguration", method = RequestMethod.PUT)
-	public ResponseEntity<String> setFormulaWithConfiguration(@RequestParam String formula, String contantslist,
-			String parameterslist) {
+	public ResponseEntity<String> setFormulaWithConfiguration(
+			@RequestBody(required=true) FormulaWithConfiguration formulaJson) 
+	{
+		String formula = formulaJson.getFormula();
+		String contantslist = formulaJson.getContantslist();
+		String parameterslist =formulaJson.getParameterslist();
+		
 		// example with f(p1, p2, p3, c1) =p1*1+p2*0.3+p3*0.5+c1
 		// c1
 		// p1,p2,p3
@@ -234,7 +247,9 @@ public class PriceController {
 	
 	@ApiOperation(value = "Set configuration using Json format", response = Iterable.class)
 	@RequestMapping(value = "/setformulajsonconfiguration", method = RequestMethod.PUT)
-	public ResponseEntity<String> setFormulaConfiguration(@RequestParam String jsonConfiguration) {
+	public ResponseEntity<String> setFormulaConfiguration(
+			@RequestBody(required=true) String jsonConfiguration)
+		{
 		// http://localhost:8080/price/setformulaconfiguration?{"formula":" f(p1, p2, p3, c1) =p1*1+p2*0.3+p3*0.5+c1","formulaConstantConfiguration":[{"name":"c1","description":"Constantc1_description","value":"Constantc1_value"}],"formulaParameterConfiguration":[{"name":"p1","description":"Parameter_p1_description","required":"true","defaultvalue":"Parameter_p1_defaultvalue"},{"name":"p2","description":"Parameter_p2_description","required":"true","defaultvalue":"Parameter_p2_defaultvalue"},{"name":"p3","description":"Parameter_p3_description","required":"true","defaultvalue":"Parameter_p3_defaultvalue"}]}
 		logger.info("setformulaconfiguration/put");
 
@@ -247,7 +262,7 @@ public class PriceController {
 			
 			ObjectMapper objectMapper = new ObjectMapper();
 			
-			jsonConfiguration = URLDecoder.decode(jsonConfiguration, StandardCharsets.US_ASCII);
+			//jsonConfiguration = URLDecoder.decode(jsonConfiguration, StandardCharsets.US_ASCII);
 			
 			formulaConfig = objectMapper.readValue(jsonConfiguration, FormulaConfig.class);	
 			

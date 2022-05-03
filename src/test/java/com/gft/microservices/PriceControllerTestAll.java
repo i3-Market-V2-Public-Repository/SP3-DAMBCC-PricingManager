@@ -1,6 +1,7 @@
 package com.gft.microservices;
 
 import static org.hamcrest.Matchers.equalTo;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -27,7 +28,10 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gft.i3market.I3MarketApplication;
+import com.gft.i3market.parameters.FormulaConstantConfiguration;
+import com.gft.i3market.parameters.FormulaWithConfiguration;
 
 @AutoConfigureMockMvc
 @SpringBootTest(classes = {I3MarketApplication.class,CustomOrder.class})
@@ -77,8 +81,17 @@ public class PriceControllerTestAll {
 		// p1 required true default value as default (1)
 		// p2 required true default value as default (1)
 		// c1 value = 1
-		mvc.perform(MockMvcRequestBuilders.put("/price/setformulawithdefaultconfiguration?formula=f(p1,p2,c1)=p1*p2+c1&contantslist=c1&parameterslist=p1,p2").accept(MediaType.ALL))
-			.andExpect(status().isOk());
+		ObjectMapper objectMapper = new ObjectMapper();
+		
+		FormulaWithConfiguration formulaWithConfiguration = new FormulaWithConfiguration();
+		formulaWithConfiguration.setFormula("f(p1,p2,c1)=p1*p2+c1");
+		formulaWithConfiguration.setContantslist("c1");
+		formulaWithConfiguration.setParameterslist("p1,p2");
+		
+		jsonconfig = objectMapper.writeValueAsString(formulaWithConfiguration);
+
+		mvc.perform(put("/price/setformulawithdefaultconfiguration").contentType(MediaType.APPLICATION_JSON).content(jsonconfig))
+		.andExpect(status().isOk());
 		
 		// Test 2
 		// Get json configuration
@@ -92,9 +105,9 @@ public class PriceControllerTestAll {
 		// p2 required true default value as default (1)
 		// c1 value = 1
 		jsonconfig = "{\"formula\":\"f(p1,p2,c1)=p1*p2+c1\",\"formulaConstantConfiguration\":[{\"name\":\"c1\",\"description\":\"default description for constant c1\",\"value\":\"1\"}],\"formulaParameterConfiguration\":[{\"name\":\"p1\",\"description\":\"default description for parameter p1\",\"required\":\"true\",\"defaultvalue\":\"1\"},{\"name\":\"p2\",\"description\":\"default description for parameter p2\",\"required\":\"true\",\"defaultvalue\":\"1\"}]}";
-		jsonconfig = URLEncoder.encode(jsonconfig, StandardCharsets.US_ASCII);
-		mvc.perform(MockMvcRequestBuilders.put("/price/setformulajsonconfiguration?jsonConfiguration="+jsonconfig).accept(MediaType.ALL))
-	    	.andExpect(status().isOk());
+		//jsonconfig = URLEncoder.encode(jsonconfig, StandardCharsets.US_ASCII);
+		mvc.perform(put("/price/setformulajsonconfiguration").contentType(MediaType.APPLICATION_JSON).content(jsonconfig))
+		.andExpect(status().isOk());
 		
 		// Test 4
 		// Perform evaluation test
@@ -114,9 +127,9 @@ public class PriceControllerTestAll {
 		// p2 required true default value as default (1)
 		// c1 value = 2
 		jsonconfig = "{\"formula\":\"f(p1,p2,c1)=p1+p2+c1\",\"formulaConstantConfiguration\":[{\"name\":\"c1\",\"description\":\"default description for constant c1\",\"value\":\"2\"}],\"formulaParameterConfiguration\":[{\"name\":\"p1\",\"description\":\"default description for parameter p1\",\"required\":\"true\",\"defaultvalue\":\"1\"},{\"name\":\"p2\",\"description\":\"default description for parameter p2\",\"required\":\"true\",\"defaultvalue\":\"1\"}]}";
-		jsonconfig = URLEncoder.encode(jsonconfig, StandardCharsets.US_ASCII);
-		mvc.perform(MockMvcRequestBuilders.put("/price/setformulajsonconfiguration?jsonConfiguration="+jsonconfig).accept(MediaType.ALL))
-	    	.andExpect(status().isOk());
+		//jsonconfig = URLEncoder.encode(jsonconfig, StandardCharsets.US_ASCII);
+		mvc.perform(put("/price/setformulajsonconfiguration").contentType(MediaType.APPLICATION_JSON).content(jsonconfig))
+		.andExpect(status().isOk());
 		
 		// Test 6
 		// Perform evaluation test
@@ -145,14 +158,28 @@ public class PriceControllerTestAll {
 		// formula=f(p1,c1)=p1+c1
 		// p1 required true default value as default (1)
 		// c1 value = 1
-		mvc.perform(MockMvcRequestBuilders.put("/price/setformulawithdefaultconfiguration?formula=f(p1,c1)=p1+c1&contantslist=c1&parameterslist=p1").accept(MediaType.ALL))
-			.andExpect(status().isOk());
+		formulaWithConfiguration = new FormulaWithConfiguration();
+		formulaWithConfiguration.setFormula("f(p1,c1)=p1+c1");
+		formulaWithConfiguration.setContantslist("c1");
+		formulaWithConfiguration.setParameterslist("p1");
+		
+		jsonconfig = objectMapper.writeValueAsString(formulaWithConfiguration);
+
+		mvc.perform(put("/price/setformulawithdefaultconfiguration").contentType(MediaType.APPLICATION_JSON).content(jsonconfig))
+		.andExpect(status().isOk());
 		
 		// TEST 10
 		// Change the value of constant
 		// c1 = 3
-		mvc.perform(MockMvcRequestBuilders.put("/price/setformulaconstant?name=c1&description=test&value=3").accept(MediaType.ALL))
-			.andExpect(status().isOk());
+		FormulaConstantConfiguration formulaParameter = new FormulaConstantConfiguration();
+		formulaParameter.setName("c1");
+		formulaParameter.setDescription("c1modify");
+		formulaParameter.setValue("3");
+		
+		jsonconfig = objectMapper.writeValueAsString(formulaParameter);
+
+		mvc.perform(put("/price/setformulaconstant").contentType(MediaType.APPLICATION_JSON).content(jsonconfig))
+		.andExpect(status().isOk());
 		
 		// TEST 11
 		// Perform evaluation test
@@ -171,9 +198,11 @@ public class PriceControllerTestAll {
 		// p2 required false default value as default (1)
 		// c1 value = 1
 		jsonconfig = "{\"formula\":\"f(p1,p2,c1)=p1+p2+c1\",\"formulaConstantConfiguration\":[{\"name\":\"c1\",\"description\":\"default description for constant c1\",\"value\":\"1\"}],\"formulaParameterConfiguration\":[{\"name\":\"p1\",\"description\":\"default description for parameter p1\",\"required\":\"true\",\"defaultvalue\":\"1\"},{\"name\":\"p2\",\"description\":\"default description for parameter p2\",\"required\":\"false\",\"defaultvalue\":\"1\"}]}";
-		jsonconfig = URLEncoder.encode(jsonconfig, StandardCharsets.US_ASCII);
-		mvc.perform(MockMvcRequestBuilders.put("/price/setformulajsonconfiguration?jsonConfiguration="+jsonconfig).accept(MediaType.ALL))
-	    	.andExpect(status().isOk());
+		//jsonconfig = URLEncoder.encode(jsonconfig, StandardCharsets.US_ASCII);
+
+		mvc.perform(put("/price/setformulajsonconfiguration").contentType(MediaType.APPLICATION_JSON).content(jsonconfig))
+		.andExpect(status().isOk());
+		
 
 		// TEST 13
 		// Perform evaluation test using default parameter value

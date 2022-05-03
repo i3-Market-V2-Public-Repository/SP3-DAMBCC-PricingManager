@@ -11,6 +11,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @SpringBootApplication
 public class I3MarketApplication {
 
+	// https://gitlab.com/i3-market/code/wp3/t3.3/pricing-manager
 	public static void main(String[] args) {
 		SpringApplication.run(I3MarketApplication.class, args);
 	}
