@@ -1,0 +1,13 @@
+version: '3.6'
+services:
+  pricing-manager-release-1.0.0:
+    image:  registry.gitlab.com/i3-market/code/wp3/t3.3/pricing-manager:latest
+    container_name: pricing-manager-release-1.0.0
+    restart: unless-stopped
+    ports:
+      - 8384:8080
+    networks:
+      - reverse-proxy
+networks:
+  reverse-proxy:
+    external: true
