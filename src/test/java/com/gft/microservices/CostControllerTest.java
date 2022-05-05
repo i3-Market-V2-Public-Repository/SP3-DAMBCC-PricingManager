@@ -51,35 +51,35 @@ public class CostControllerTest {
 		eniviroment.equals(eniviroment);
 		
 		// Peform base request considering only the status of response
-		mvc.perform(MockMvcRequestBuilders.get("/cost/getcost?price=100").accept(MediaType.ALL))
+		mvc.perform(MockMvcRequestBuilders.get("/fee/getfee?price=100").accept(MediaType.ALL))
 			.andExpect(status().isOk());
 		
 		// Perform base test assuming that formula is cost = price * fee, so if price is 0 cost is always 0
-		mvc.perform(MockMvcRequestBuilders.get("/cost/getcost?price=0").accept(MediaType.ALL))
+		mvc.perform(MockMvcRequestBuilders.get("/fee/getfee?price=0").accept(MediaType.ALL))
 			.andExpect(status().isOk())
 			.andExpect(content().string(equalTo("0.0")));
 		
 		// Perform test using an invalid query param
-		mvc.perform(MockMvcRequestBuilders.get("/cost/getcost?dummyparam=1").accept(MediaType.ALL))
+		mvc.perform(MockMvcRequestBuilders.get("/fee/getfee?dummyparam=1").accept(MediaType.ALL))
 			.andExpect(status().isBadRequest());
 		
 		// Set fee as 10
-		mvc.perform(MockMvcRequestBuilders.put("/cost/setfee?fee=10").accept(MediaType.ALL))
+		mvc.perform(MockMvcRequestBuilders.put("/fee/setfee?fee=10").accept(MediaType.ALL))
 			.andExpect(status().isOk())
-			.andExpect(content().string(equalTo("OK")));
+			.andExpect(content().string(equalTo("operation successful")));
 		
 		// Get cost with a fee of 10% so cost = 100 * 10% = 10
-		mvc.perform(MockMvcRequestBuilders.get("/cost/getcost?price=100").accept(MediaType.ALL))
+		mvc.perform(MockMvcRequestBuilders.get("/fee/getfee?price=100").accept(MediaType.ALL))
 			.andExpect(status().isOk())
 			.andExpect(content().string(equalTo("10.0")));
 		
 		// Set fee as 20
-		mvc.perform(MockMvcRequestBuilders.put("/cost/setfee?fee=20").accept(MediaType.ALL))
+		mvc.perform(MockMvcRequestBuilders.put("/fee/setfee?fee=20").accept(MediaType.ALL))
 			.andExpect(status().isOk())
-			.andExpect(content().string(equalTo("OK")));
+			.andExpect(content().string(equalTo("operation successful")));
 		
 		// Get cost with a fee of 20% so cost = 100 * 20% = 20
-		mvc.perform(MockMvcRequestBuilders.get("/cost/getcost?price=100").accept(MediaType.ALL))
+		mvc.perform(MockMvcRequestBuilders.get("/fee/getfee?price=100").accept(MediaType.ALL))
 			.andExpect(status().isOk())
 			.andExpect(content().string(equalTo("20.0")));
 	}

@@ -28,7 +28,7 @@ import com.gft.i3market.parameters.FormulaParameterConfiguration;
  */
 
 @RestController
-@RequestMapping("/cost")
+@RequestMapping("/fee")
 public class CostController {
 
 	@Autowired
@@ -57,7 +57,7 @@ public class CostController {
 			@RequestParam(value= "price" ,required=true) String price)
 			{
 
-		logger.info("getcost/get");
+		logger.info("fee/getfee");
 
 		double result = 0;
 
@@ -89,7 +89,7 @@ public class CostController {
 	@RequestMapping(value = "/setfee", method = RequestMethod.PUT)
 	public ResponseEntity<String> put(String fee) {
 		
-		logger.info("setfee/put");
+		logger.info("fee/setfee");
 
 		try {
 			CostWorker worker = new CostWorker(env);
