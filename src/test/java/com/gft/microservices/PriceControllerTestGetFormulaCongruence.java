@@ -56,6 +56,6 @@ public class PriceControllerTestGetFormulaCongruence {
 		// TEST 8
 		// Test formula congruence
 		mvc.perform(MockMvcRequestBuilders.get("/price/checkformulaconfiguration").accept(MediaType.ALL))
-		 	.andExpect(content().string(equalTo("OK")));
+		 	.andExpect(content().string(equalTo("Correct formula")));
 	}
 }
