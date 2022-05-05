@@ -17,9 +17,8 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web-services'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'  
-	implementation group: 'io.springfox', name: 'springfox-swagger2', version: '2.9.2'
-	implementation group: 'io.springfox', name: 'springfox-swagger-ui', version: '2.9.2'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+	implementation group: 'org.springdoc', name: 'springdoc-openapi-ui', version: '1.6.8'
   	implementation group: 'org.mariuszgromada.math', name: 'MathParser.org-mXparser', version: '4.0.0'
   	
   	//implementation 'org.springframework.boot:spring-boot-starter-security'

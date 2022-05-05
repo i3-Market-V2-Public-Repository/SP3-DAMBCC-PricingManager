@@ -93,7 +93,7 @@ public class PriceWorker {
 	/**
 	 * Put constant in config property file
 	 * 
-	 * @param putConstParam
+	 * @param formulaParameter
 	 * @return
 	 * @throws Exception
 	 */

@@ -6,17 +6,19 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gft.i3market.parameters.FormulaConfig;
@@ -24,10 +26,9 @@ import com.gft.i3market.parameters.FormulaConstantConfiguration;
 import com.gft.i3market.parameters.FormulaParameterConfiguration;
 import com.gft.i3market.parameters.FormulaWithConfiguration;
 import com.gft.i3market.price.work.PriceWorker;
-import com.gft.test.jackson.Car;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
 
 /**
  * Price controller
@@ -51,9 +52,19 @@ public class PriceController {
 	 * @param parameters
 	 * @return
 	 */
-	@ApiOperation(value = "Get the price of item", response = Iterable.class)
+
+	@Operation(summary = "Get the price of data")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "price of data",
+					content = { @Content(mediaType = "text/plain",
+							schema = @Schema(implementation = String.class)) })
+	})
 	@RequestMapping(value = "/getprice", method = RequestMethod.GET)
 	public ResponseEntity<String> getPrice(
+			@Parameter(
+					name =  "price",
+					description = "current price of data",
+					required = true)
 			@RequestParam Map<String, String> parameters)
 			{
 		// http://localhost:8080/price/getprice?credibilityoftheseller=1&ageofdata=1&accuracyofdata=1&volumeofdata=1&costofcollectingandstorage=1&riskofprivacyviolations=1&exclusivityofaccess=1&rawdatavsprocesseddata=1&levelofownership=1
@@ -61,6 +72,7 @@ public class PriceController {
 
 		try {
 			parameters = com.gft.i3market.utilities.Utilities.adjustSwaggerParams(parameters);
+
 		} catch (Exception e) {
 			logger.error("Error adjusting parameters",e);
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
@@ -71,36 +83,39 @@ public class PriceController {
 			PriceWorker worker = new PriceWorker(env);
 
 			result = worker.calculatePrice(parameters);
-			
+
 		} catch (Exception e) {
 			logger.error("Error calculating price",e);
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
 		}
 
-		String returString = String.valueOf(result);
+		String value = String.valueOf(result);
 		
-		logger.info("Operation result ok: "+returString);
-		
-		return ResponseEntity.ok(returString);
+		logger.info("Operation result ok: "+value);
+
+		return new ResponseEntity<>(value, HttpStatus.OK);
 	}
 
 	/**
 	 * Configure Formula Parameters
 	 * 
-	 * @param putConstParam
+	 * @param formulaParameter
 	 * @return
 	 */
-	@ApiOperation(value = "Set formula parameter", response = Iterable.class)
+	@Operation(summary = "Set formula parameter")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200",
+					content = { @Content(mediaType = "text/plain",
+							schema = @Schema(implementation = String.class)) })
+	})
 	@RequestMapping(value = "/setformulaparameter", method = RequestMethod.PUT)
 	public ResponseEntity<String> configureFormulaParameters(
-			@RequestBody(required=true) FormulaParameterConfiguration formulaParameter) 
+			@RequestBody FormulaParameterConfiguration formulaParameter)
 			{
 		// http://localhost:8080/price/putParam?name=b1&description=Credibility%20of%20seller&required=false&defaultvalue=2
 		logger.info("configureformulaparameters/put");
 
 		logger.info("Pramameter parameter: "+formulaParameter.toString());
-
-		String returString = "OK";
 
 		try {
 			PriceWorker worker = new PriceWorker(env);
@@ -111,47 +126,55 @@ public class PriceController {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
 		}
 
-		logger.info("Operation result ok: "+returString);
+		logger.info("Operation result ok");
 		
-		return new ResponseEntity<>(returString, HttpStatus.OK);
+		return new ResponseEntity<>("operation successful", HttpStatus.OK);
 	}
 
 	/**
-	 * Configure Formula Contstants
+	 * Configure Formula Constants
 	 * 
-	 * @param putConstParam
+	 * @param formulaConstant
 	 * @return
 	 */
-	@ApiOperation(value = "Set formula constant", response = Iterable.class)
+	@Operation(summary = "Set formula constant")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200",
+					content = { @Content(mediaType = "text/plain",
+							schema = @Schema(implementation = String.class)) })
+	})
 	@RequestMapping(value = "/setformulaconstant", method = RequestMethod.PUT)
-	public ResponseEntity<String> configureFormulaParameters(
-			@RequestBody(required=true) FormulaConstantConfiguration formulaParameter)
+	public ResponseEntity<String> configureFormulaConstants(
+			@RequestBody FormulaConstantConfiguration formulaConstant)
 			{
 		// http://localhost:8080/price/putParam?name=b1&description=Credibility%20of%20seller&required=false&defaultvalue=2
 		logger.info("configureformulaconstant/put");
 
-		logger.info("Pramameter constant: "+formulaParameter.toString());
-
-		String returString = "OK";
+		logger.info("Pramameter constant: "+formulaConstant.toString());
 
 		try {
 			PriceWorker worker = new PriceWorker(env);
 
-			worker.putFormulaConstant(formulaParameter);
+			worker.putFormulaConstant(formulaConstant);
 		} catch (Exception e) {
 			logger.error("Error putting constant",e);
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
 		}
 		
-		logger.info("Operation result ok: "+returString);
+		logger.info("Operation result ok");
 		
-		return new ResponseEntity<>(returString, HttpStatus.OK);
+		return new ResponseEntity<>("operation successful",HttpStatus.OK);
 	}
-	
-	@ApiOperation(value = "Set Formula with default values for constants and parameters", response = Iterable.class)
+
+	@Operation(summary = "Set Formula with default values for constants and parameters")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200",
+					content = { @Content(mediaType = "text/plain",
+							schema = @Schema(implementation = String.class)) })
+	})
 	@RequestMapping(value = "/setformulawithdefaultconfiguration", method = RequestMethod.PUT)
 	public ResponseEntity<String> setFormulaWithConfiguration(
-			@RequestBody(required=true) FormulaWithConfiguration formulaJson) 
+			@RequestBody FormulaWithConfiguration formulaJson)
 	{
 		String formula = formulaJson.getFormula();
 		String contantslist = formulaJson.getContantslist();
@@ -165,12 +188,11 @@ public class PriceController {
 		logger.info("Pramameter formula: "+formula);
 		logger.info("Pramameter constant list: "+contantslist);
 		logger.info("Pramameter parameter list: "+parameterslist);
-		
-		String result = "OK";
+
+		String result;
 
 		try {
 			PriceWorker worker = new PriceWorker(env);
-
 			result = worker.setFormula(formula);
 			worker.createConfigConstants(contantslist);
 			worker.createConfigParameters(parameterslist);
@@ -181,17 +203,22 @@ public class PriceController {
 		}
 
 		logger.info("Operation result ok");
-		
-		return ResponseEntity.ok(result);
+
+		return new ResponseEntity<>("operation successful",HttpStatus.OK);
 	}
 
-	@ApiOperation(value = "Check formula and parameters consistency", response = Iterable.class)
+	@Operation(summary = "Check formula and parameters consistency")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200",
+					content = { @Content(mediaType = "text/plain",
+							schema = @Schema(implementation = String.class)) })
+	})
 	@RequestMapping(value = "/checkformulaconfiguration", method = RequestMethod.GET)
 	public ResponseEntity<String> checkformulaconfiguration() {
 		// example with f(p1, p2, p3, c1) =p1*1+p2*0.3+p3*0.5+c1
 		logger.info("checkformulaconfiguration/get");
 
-		String result = "OK";
+		String result = "Correct formula";
 
 		try {
 			PriceWorker worker = new PriceWorker(env);
@@ -199,10 +226,10 @@ public class PriceController {
 			boolean check = worker.checkFormulaConfiguration();
 
 			if (!check)
-				result = "KO";
+				result = "Incorrect formula";
 
 		} catch (Exception e) {
-			logger.error("Error checling formula",e);
+			logger.error("Error checking formula",e);
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
 		}
 
@@ -210,10 +237,16 @@ public class PriceController {
 		
 		return ResponseEntity.ok(result);
 	}
-	
-	@ApiOperation(value = "Get configuration using Json format", response = Iterable.class)
-	@RequestMapping(value = "/getformulajsonconfiguration", method = RequestMethod.GET, produces = "application/json")
-	public ResponseEntity<String> getFormulaConfiguration() {
+
+	@Operation(summary = "Get configuration using Json format")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200",
+					content = { @Content(mediaType = "application/json",
+							schema = @Schema(implementation = FormulaConfig.class)) })
+	})
+	@RequestMapping(value = "/getformulajsonconfiguration", method = RequestMethod.GET)
+	@ResponseBody
+	public FormulaConfig getFormulaConfiguration() {
 		// http://localhost:8080/price/getformulaconfiguration
 		logger.info("getformula/get");
 
@@ -223,60 +256,52 @@ public class PriceController {
 		try {
 			PriceWorker worker = new PriceWorker(env);
 
-			String forula = worker.getFormula();
+			String formula = worker.getFormula();
 			FormulaConstantConfiguration[] constants = worker.getFormulaConstantsObject();
 			FormulaParameterConfiguration[] parameters = worker.getFormulaParamsObject();
-			
-			formulaConfig.setFormula(forula);
+
+			formulaConfig.setFormula(formula);
 			formulaConfig.setFormulaConstantConfiguration(constants);
 			formulaConfig.setFormulaParameterConfiguration(parameters);
-			
-			ObjectMapper objectMapper = new ObjectMapper();
-
-			result = objectMapper.writeValueAsString(formulaConfig);
 
 		} catch (Exception e) {
 			logger.error("Error getting formula configuration",e);
-			return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
 		}
 
-		logger.info("Operation result ok: "+result);
-		
-		return ResponseEntity.ok(result);
+		logger.info("Operation result ok: "+ formulaConfig.getFormula());
+
+		return formulaConfig;
 	}
-	
-	@ApiOperation(value = "Set configuration using Json format", response = Iterable.class)
+
+	@Operation(summary = "Set configuration using Json format")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200",
+					content = { @Content(mediaType = "text/plain",
+							schema = @Schema(implementation = String.class)) })
+	})
 	@RequestMapping(value = "/setformulajsonconfiguration", method = RequestMethod.PUT)
 	public ResponseEntity<String> setFormulaConfiguration(
-			@RequestBody(required=true) String jsonConfiguration)
+			@RequestBody FormulaConfig jsonConfiguration)
 		{
 		// http://localhost:8080/price/setformulaconfiguration?{"formula":" f(p1, p2, p3, c1) =p1*1+p2*0.3+p3*0.5+c1","formulaConstantConfiguration":[{"name":"c1","description":"Constantc1_description","value":"Constantc1_value"}],"formulaParameterConfiguration":[{"name":"p1","description":"Parameter_p1_description","required":"true","defaultvalue":"Parameter_p1_defaultvalue"},{"name":"p2","description":"Parameter_p2_description","required":"true","defaultvalue":"Parameter_p2_defaultvalue"},{"name":"p3","description":"Parameter_p3_description","required":"true","defaultvalue":"Parameter_p3_defaultvalue"}]}
 		logger.info("setformulaconfiguration/put");
 
 		logger.info("Pramameter jsonConfiguration: "+jsonConfiguration);
-		
-		String result = "OK";
 
 		try {
-			FormulaConfig formulaConfig = new FormulaConfig();
-			
-			ObjectMapper objectMapper = new ObjectMapper();
-			
-			//jsonConfiguration = URLDecoder.decode(jsonConfiguration, StandardCharsets.US_ASCII);
-			
-			formulaConfig = objectMapper.readValue(jsonConfiguration, FormulaConfig.class);	
-			
+
 			PriceWorker worker = new PriceWorker(env);
 
-			worker.setFormulaConfig(formulaConfig);
+			worker.setFormulaConfig(jsonConfiguration);
 
 		} catch (Exception e) {
 			logger.error("Error setting formula configuration",e);
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
 		}
 
-		logger.info("Operation result ok: "+result);
-		
-		return ResponseEntity.ok(result);
+		logger.info("Operation result ok");
+
+		return new ResponseEntity<>("operation successful",HttpStatus.OK);
 	}
 }

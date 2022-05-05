@@ -1,5 +1,11 @@
 package com.gft.i3market.controllers;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +19,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.gft.i3market.cost.work.CostWorker;
 import com.gft.i3market.parameters.FormulaParameterConfiguration;
 
-import io.swagger.annotations.ApiOperation;
 
 /**
  * CostController
@@ -36,10 +41,20 @@ public class CostController {
 	 * @param price
 	 * @return
 	 */
-	@ApiOperation(value = "Get the cost of item", response = Iterable.class)
-	@RequestMapping(value = "/getcost", method = RequestMethod.GET)
+	@Operation(summary = "get I3M fee")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200",
+					content = { @Content(mediaType = "text/plain",
+							schema = @Schema(implementation = String.class)) })
+	})
+	@RequestMapping(value = "/getfee", method = RequestMethod.GET)
 	public ResponseEntity<String> get(
-			@RequestParam(value= "price" ,required=true) String price) 
+			@Parameter(
+					name =  "price",
+					description = "current price of the data",
+					example = "150",
+					required = true)
+			@RequestParam(value= "price" ,required=true) String price)
 			{
 
 		logger.info("getcost/get");
@@ -55,11 +70,9 @@ public class CostController {
 			return ResponseEntity.ok("Bad request: " + e.toString());
 		}
 
-		String returString = String.valueOf(result);
+		String value = String.valueOf(result);
 
-		logger.info("Operation result ok: "+returString);
-		
-		return ResponseEntity.ok(returString);
+		return new ResponseEntity<>(value,HttpStatus.OK);
 	}
 
 	/**
@@ -67,14 +80,16 @@ public class CostController {
 	 * @param fee
 	 * @return
 	 */
-	@ApiOperation(value = "Set fee", response = Iterable.class)
+	@Operation(summary = "set I3M fee")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200",
+					content = { @Content(mediaType = "text/plain",
+							schema = @Schema(implementation = String.class)) })
+	})
 	@RequestMapping(value = "/setfee", method = RequestMethod.PUT)
-	//@RequestMapping("/putFee")
 	public ResponseEntity<String> put(String fee) {
 		
 		logger.info("setfee/put");
-
-		String returString = "OK";
 
 		try {
 			CostWorker worker = new CostWorker(env);
@@ -85,8 +100,6 @@ public class CostController {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
 		}
 
-		logger.info("Operation result ok: "+returString);
-		
-		return new ResponseEntity<>(returString, HttpStatus.OK);
+		return new ResponseEntity<>("operation successful",HttpStatus.OK);
 	}
 }
