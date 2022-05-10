@@ -60,6 +60,7 @@ public class PriceControllerTestGetPrice {
 		// p2 = 2
 		// c1 = 1
 		// f = 1*2+1 = 3
+		// jsonconfig = URLEncoder.encode(jsonconfig, StandardCharsets.US_ASCII);
 		mvc.perform(MockMvcRequestBuilders.get("/price/getprice?p1=1&p2=2").accept(MediaType.ALL))
 			.andExpect(status().isOk());
 		    //.andExpect(content().string(equalTo("3.0")));

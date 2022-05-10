@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.util.JSONPObject;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -15,6 +17,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
@@ -62,27 +65,28 @@ public class PriceController {
 	@RequestMapping(value = "/getprice", method = RequestMethod.GET)
 	public ResponseEntity<String> getPrice(
 			@Parameter(
-					name =  "price",
-					description = "current price of data",
+					name =  "parameters",
+					description = "characteristic parameters of the data",
 					required = true)
-			@RequestParam Map<String, String> parameters)
+			@RequestParam String parameters)
 			{
 		// http://localhost:8080/price/getprice?credibilityoftheseller=1&ageofdata=1&accuracyofdata=1&volumeofdata=1&costofcollectingandstorage=1&riskofprivacyviolations=1&exclusivityofaccess=1&rawdatavsprocesseddata=1&levelofownership=1
 		logger.info("getprice/get");
 
+		ObjectMapper mapper = new ObjectMapper();
+		Map<String, String> paramsMap = null;
 		try {
-			parameters = com.gft.i3market.utilities.Utilities.adjustSwaggerParams(parameters);
-
-		} catch (Exception e) {
-			logger.error("Error adjusting parameters",e);
-			return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+			paramsMap = mapper.readValue(parameters, Map.class);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
 		}
+
 		double result = 0;
 
 		try {
 			PriceWorker worker = new PriceWorker(env);
 
-			result = worker.calculatePrice(parameters);
+			result = worker.calculatePrice(paramsMap);
 
 		} catch (Exception e) {
 			logger.error("Error calculating price",e);

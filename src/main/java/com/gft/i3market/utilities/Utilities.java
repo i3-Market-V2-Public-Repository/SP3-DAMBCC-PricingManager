@@ -96,42 +96,6 @@ public class Utilities {
 	}
 
 	/**
-	 * Adjust Swagger parameters
-	 * 
-	 * @param parameters
-	 * @return
-	 */
-	public static Map<String, String> adjustSwaggerParams(Map<String, String> parameters) {
-		if (parameters.size() == 1) {
-			try {
-				// Using swagger html user inteface (rom browser) RequestParameters Maps are coodificated by "parameters" in only one value with all the parameters
-				// so remap the single paramer splitting to a Map
-				boolean containsand = false;
-				for (Iterator iterator = parameters.keySet().iterator(); iterator.hasNext();) {
-					String currKey = (String) iterator.next();
-					String currVal = (String) parameters.get(currKey);
-					if (currKey.equalsIgnoreCase("parameters"))
-						containsand = true;
-				}
-				if (containsand) {
-					logger.info("Detected swagger request");
-					Map<String, String> parameters1 = new HashMap<String, String>();
-					String[] pars = parameters.get("parameters").split("&");
-					for (int i = 0; i < pars.length; i++) {
-						String[] kv = pars[i].split("=");
-						parameters1.put(kv[0], kv[1]);
-					}
-					parameters = parameters1;
-				}
-			} catch (Exception ex) {
-				logger.error("Error processing swagger parameters: ", ex);
-				throw ex;
-			}
-		}
-		return parameters;
-	}
-
-	/**
 	 * Read constants from property file
 	 * 
 	 * @param properties
