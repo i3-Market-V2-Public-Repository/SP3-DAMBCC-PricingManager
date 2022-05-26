@@ -1,213 +1,341 @@
-## Pricing Manager
 
-Pricing Manager is a web micro-service for configure and eval price and cost for machine learning data.
-The service has been developed with the Java 11 language and the support of the Spring Boot framework (Version: 2.6.5.RELEASE).
-It adopts the REST approach as a standard protocol for displaying services.
+  
+
+<!---
+
+  
+
+# Copyright 2020-2022 i3-MARKET Consortium:
+
+  
+
+#
+
+  
+
+# ATHENS UNIVERSITY OF ECONOMICS AND BUSINESS - RESEARCH CENTER
+
+  
+
+# ATOS SPAIN SA
+
+  
+
+# EUROPEAN DIGITAL SME ALLIANCE
+
+  
+
+# GFT ITALIA SRL
+
+  
+
+# GUARDTIME OU
+
+  
+
+# HOP UBIQUITOUS SL
+
+  
+
+# IBM RESEARCH GMBH
+
+  
+
+# IDEMIA FRANCE
+
+  
+
+# SIEMENS AKTIENGESELLSCHAFT
+
+  
+
+# SIEMENS SRL
+
+  
+
+# TELESTO TECHNOLOGIES PLIROFORIKIS KAI EPIKOINONION EPE
+
+  
+
+# UNIVERSITAT POLITECNICA DE CATALUNYA
+
+  
+
+# UNPARALLEL INNOVATION LDA
+
+  
+
+#
+
+  
+
+# Licensed under the Apache License, Version 2.0 (the "License");
+
+  
+
+# you may not use this file except in compliance with the License.
+
+  
+
+# You may obtain a copy of the License at
+
+  
+
+#
+
+  
+
+# http://www.apache.org/licenses/LICENSE-2.0
+
+  
+
+#
+
+  
+
+# Unless required by applicable law or agreed to in writing, software
+
+  
+
+# distributed under the License is distributed on an "AS IS" BASIS,
+
+  
+
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+  
+
+# See the License for the specific language governing permissions and
+
+  
+
+# limitations under the License.
+
+  
+
+#
+
+  
+
+-->
+
+
+# Pricing Manager
+
+Pricing Manager is a web micro-service for configure and evaluate the price and the cost of data.
 The service APIs are logically divided into two subsets:
 
-Pricing management
-Cost management
+**Pricing management:**
 
-Pricing management:
-This service is useful to calculate the price of some data based on a configured formula.
-Sicne teh price formula has been configured the service can eval the price of data.
+This service allows you to calculate the price of some data on the basis of a preconfigured formula. You can manage the formula and customize parameters and constants.
 
-Cost management:
-This service is useful to calculate the cost thet depends by price and fee.
+**Cost management:** 
 
-## Services Documentation
+This service can be used to calculate the fee of some data which depends on the price of the data and the percentage of the tariff. 
+
+## Swagger documentation
+
+
+The OAS documentation can be accessed [here](http://95.211.3.244:8181/SdkRefImpl/#/common-services:_pricingManager).
+
+## Endpoints
+ 
 
 ### Price manager:
 
-#### setformulawithdefaultconfiguration
+#### setformulawithdefaultconfiguration:
+
 This service can be used for set a formula using default formula parameters and constant values.
-Query parameter:
--formula
+ 
+Body parameter: 
+
+- formula Example:
+
+`formula=f(p1,p2,c1)=p1*p2+c1&contantslist=c1&parameterslist=p1,p2"`
+
+The formula format is: f("parameters and constants list")=math formula
+
+Return parameter: 
+
+- String ("OK" value in case of operation success, "KO" value in case of error) 
+
+#### setformulaconstant:  
+
+This service can be used to put the value of a formula constant.
+
+Body parameter:
+
+- `{ "name":"string", "description":"string", "value":"string" }`  
+
+Return parameter:
+
+- String ("OK" value in case of operation success, "KO" value in case of error)
+
+#### setformulaparameter: 
+
+This service can be used to put the value of a formula parameter.
+
+Body parameter:
+
+- `{ "name":"string", "description":"string", "required":"string", "defaultvalue":"string" } `  
+
+Return parameter:
+
+- String ("OK" value in case of operation success, "KO" value in case of error) 
+
+#### getformulajsonconfiguration:
+
+This service can be used to retrieve the configured formula, parameters and constants.
+
+The service has been preconfigured with the formula defined and analyzed by AUEB.
+
+Return parameter:
+
+- The formula configuration in JSON format  
+
+#### setformulajsonconfiguration:
+
+This service can be used to set formula, parameters and constants
+
+Query parameter:  
+
+- The input param is a string that represent the formula configuration in JSON format:
+
+Example (The formula defined from AUEB in JSON format):
+
+```json
+{
+"formula":"f(B1,B2,B3,B4,B5,CostOfCollecting,EstimatedValue,DataCompleteness,DataAccuracy,UniqueEntries,Rarity)=(CostOfCollecting+EstimatedValue*B1)*(1-(1-DataCompleteness/5)* B2-(1-DataAccuracy/5)*B3-(1-UniqueEntries/5)*B4-(1-Rarity/5)*B5)",
+   "formulaConstantConfiguration":[
+      {
+         "name":"B1",
+         "description":"Final Parameter for data value",
+         "value":"0.05"
+      },
+      {
+         "name":"B2",
+         "description":"Data Completeness",
+         "value":"0.3"
+      },
+      {
+         "name":"B3",
+         "description":"Data Accuracy and Validity",
+         "value":"0.3"
+      },
+      {
+         "name":"B4",
+         "description":"Unique entries-values",
+         "value":"0.1"
+      },
+      {
+         "name":"B5",
+         "description":"Rarity-Scarceness",
+         "value":"1"
+      }
+   ],
+   "formulaParameterConfiguration":[
+      {
+         "name":"CostOfCollecting",
+         "description":"Cost of collecting, storing and analysis (if relevant)",
+         "required":"true",
+         "defaultvalue":"0"
+      },
+      {
+         "name":"EstimatedValue",
+         "description":"Estimated  value for the consumer ",
+         "required":"true",
+         "defaultvalue":"0"
+      },
+      {
+         "name":"DataCompleteness",
+         "description":"Data Completeness: The data is complete",
+         "required":"true",
+         "defaultvalue":"0"
+      },
+      {
+         "name":"DataAccuracy",
+         "description":"Data Accuracy and Validity: The data is accurate",
+         "required":"true",
+         "defaultvalue":"0"
+      },
+      {
+         "name":"UniqueEntries",
+         "description":"Unique entries-values: The are no duplicates in the dataset",
+         "required":"true",
+         "defaultvalue":"0"
+      },
+      {
+         "name":"Rarity",
+         "description":"Rarity-Scarceness: The data is rare",
+         "required":"true",
+         "defaultvalue":"0"
+      }
+   ]
+}
+
+```
+
+Return parameter:
+
+- String ("OK" value in case of operation success, "KO" value in case of error) 
+
+#### getprice:
+
+This service can be used to get the price of data: 
+
+Query parameter: 
+
+- String that contains the characteristic parameters of the data in JSON format.
+
+- The characteristics params of the data are inserted as *parameters* in the formula, those used in the example below have already been included in the preconfigured formula within the service and are described in the slides provided by AUEB.
+
+  
+
 Example:
-formula=f(p1,p2,c1)=p1*p2+c1&contantslist=c1&parameterslist=p1,p2"
-See the formula format with f("parameters and constants list")=math formula
-Return parameter:
-- String ("OK" value in case of operation success, "KO" value in case of error)
 
-#### setformulaconstant
-This service can be used to put the value of a formula constant
-Query parameter:
--name
--value
--description
-Example:
-name: c1
-value: 1
-description: c1 description
-Return parameter:
-- String ("OK" value in case of operation success, "KO" value in case of error)
+```json
 
-#### setformulaparameter
-This service can be used to put the value of a formula parameter
-Query parameter:
--name
--required
--defaultvalue
--description
-Example:
-name: p1
-required: false
-defaultvalue: 2
-description: p2 description
-Return parameter:
-- String ("OK" value in case of operation success, "KO" value in case of error)
+{
+   "CostOfCollecting":"20",
+   "EstimatedValue":"1000",
+   "DataCompleteness":"5",
+   "DataAccuracy":"5",
+   "UniqueEntries":"5",
+   "Rarity":"5"
+}
 
-#### getformulajsonconfiguration
-This service can be used to retrieve fornula, parameters and constants
-Query parameter:
--none
-Return parameter:
-- JSON
-The configuratrion is in JSON format like this:
-*`{
-  "formula": "f(b1,b2,b3,b4,b5,b6,b7,b8,b9,credibilityoftheseller,ageofdata,accuracyofdata,volumeofdata,costofcollectingandstorage,riskofprivacyviolations,exclusivityofaccess,rawdatavsprocesseddata,levelofownership)=b1*credibilityoftheseller+b2*ageofdata+b3*accuracyofdata+b4*volumeofdata+b5*costofcollectingandstorage+b6*riskofprivacyviolations+b7*exclusivityofaccess+b8*rawdatavsprocesseddata+b9*levelofownership",
-  "formulaConstantConfiguration": [
-    {
-      "name": "b1",
-      "description": "b1",
-      "value": "1"
-    },
-    {
-      "name": "b2",
-      "description": "b2",
-      "value": "1"
-    },
-    {
-      "name": "b3",
-      "description": "b3",
-      "value": "1"
-    },
-    {
-      "name": "b4",
-      "description": "b4",
-      "value": "1"
-    },
-    {
-      "name": "b5",
-      "description": "b5",
-      "value": "1"
-    },
-    {
-      "name": "b6",
-      "description": "b6",
-      "value": "1"
-    },
-    {
-      "name": "b7",
-      "description": "b7",
-      "value": "1"
-    },
-    {
-      "name": "b8",
-      "description": "b8",
-      "value": "1"
-    },
-    {
-      "name": "b9",
-      "description": "b8",
-      "value": "1"
-    }
-  ],
-  "formulaParameterConfiguration": [
-    {
-      "name": "credibilityoftheseller",
-      "description": "Credibility of the Seller",
-      "required": "false",
-      "defaultvalue": "1"
-    },
-    {
-      "name": "ageofdata",
-      "description": "Age of Data",
-      "required": "true",
-      "defaultvalue": "1"
-    },
-    {
-      "name": "accuracyofdata",
-      "description": "Accuracy of Data",
-      "required": "true",
-      "defaultvalue": "1"
-    },
-    {
-      "name": "volumeofdata",
-      "description": "Volume of Data",
-      "required": "true",
-      "defaultvalue": "1"
-    },
-    {
-      "name": "costofcollectingandstorage",
-      "description": "Cost of collecting and storage",
-      "required": "true",
-      "defaultvalue": "1"
-    },
-    {
-      "name": "riskofprivacyviolations",
-      "description": "Risk of privacy violations",
-      "required": "true",
-      "defaultvalue": "1"
-    },
-    {
-      "name": "exclusivityofaccess",
-      "description": "Exclusivity of access",
-      "required": "true",
-      "defaultvalue": "1"
-    },
-    {
-      "name": "rawdatavsprocesseddata",
-      "description": "Raw data vs processed data",
-      "required": "true",
-      "defaultvalue": "1"
-    },
-    {
-      "name": "levelofownership",
-      "description": "Level of ownership",
-      "required": "true",
-      "defaultvalue": "1"
-    }
-  ]
-}`*
+```
+Return parameter: 
 
-#### setformulajsonconfiguration
-This service can be used to set fornula, parameters and constants like as getformulajsonconfiguration service
-
-Query parameter:
-- JSON
-Return parameter:
-- String ("OK" value in case of operation success, "KO" value in case of error)
-
-JSON format is the same as getformulajsonconfiguration service
-
-#### getprice
-This service can be used to get the price of data
-
-Query parameter:
-- parameters of the formula
-Return parameter:
-- the price
-Example
-input parameter: credibilityoftheseller=1&ageofdata=1&accuracyofdata=1&volumeofdata=1&costofcollectingandstorage=1&riskofprivacyviolations=1&exclusivityofaccess=1&rawdatavsprocesseddata=1&levelofownership=1
+- the calciulated price as a number
 
 ### Cost manager:
 
-#### setfee
-This service can be used for set the fee for eval cost by price.
-Query parameter:
--fee
-Return parameter:
-- String ("OK" value in case of operation success, "KO" value in case of error)
-Example:10 (in %)
+#### setfee:
 
-#### getcost
-This service can be used for get the cost by price.
+This service can be used for set the fee to evaluate the cost of data.
+
 Query parameter:
--price
+
+- The fee percentage
+
+Example: 10 (if wanted percentage is 10%)
+
 Return parameter:
-- String (the calculated cost)
-Example:100
+
+- String ("OK" value in case of operation success, "KO" value in case of error)
+
+#### getcost:
+
+This service can be used to get the fee of some data by price.
+
+Query parameter:
+
+- The price of the data
+
+Return parameter:
+
+- The calculated fee
 
 ## Installation Requirements
 The installation requirements are:
